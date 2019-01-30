@@ -1,0 +1,101 @@
+Sub WallStreet()
+
+    For Each ws In Worksheets
+
+        'Determine Variables
+        Dim ticker As String
+        Dim TotalVolume As Double
+        Dim SummaryRow As Integer
+        Dim StartValue As Double
+        Dim EndValue As Double
+        Dim YearlyChange As Double
+        Dim PercentChange As Double
+
+
+        'Create Headers
+        ws.Cells(1, 9).Value = "Ticker"
+        ws.Cells(1, 12).Value = "Total Stock Volume"
+        ws.Cells(1, 10).Value = "Yearly Change"
+        ws.Cells(1, 11).Value = "Percent Change"
+
+        TotalVolume = 0
+        SummaryRow = 2
+
+        'Find Value for LastRow
+        LastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+
+        'Grab First StartValue
+        StartValue = ws.Cells(2, 3).Value
+
+        'Loop Through Each Row
+        For i = 2 To LastRow
+
+            'Check to see if same ticker value, if so
+            If ws.Cells(i + 1, 1).Value = ws.Cells(i, 1).Value Then
+
+                'Add to Total Volume
+                TotalVolume = TotalVolume + ws.Cells(i, 7).Value
+
+            Else
+
+                'Set ticker value
+                ticker = ws.Cells(i, 1).Value
+
+                'Grab EndValue
+                EndValue = ws.Cells(i, 6).Value
+
+                'Add to Total Volume
+                TotalVolume = TotalVolume + ws.Cells(i, 7).Value
+
+                'Calculate YearlyChange
+                YearlyChange = StartValue - EndValue
+                
+                'Calculte PercentChange
+                    'Can't Divide by Zero
+                    If StartValue = 0 Then
+                        PercentChange = 0
+            
+                    Else
+                        PercentChange = ((YearlyChange / StartValue) * 100)
+                
+                    End If
+
+                'Put ticker value in correct column
+                ws.Range("I" & SummaryRow).Value = ticker
+
+                'Put Total Volume in correct column
+                ws.Range("L" & SummaryRow).Value = TotalVolume
+
+                'Put YearlyChange in correct column
+                ws.Range("J" & SummaryRow).Value = YearlyChange
+
+                'Add Conditional Formatting for YearlyChange
+                    'Less than Zero is Red
+                    If (ws.Range("J" & SummaryRow).Value < 0) Then
+                        ws.Range("J" & SummaryRow).Interior.ColorIndex = 3
+
+                    'Greater than Zero is Green
+                    Else
+                        ws.Range("J" & SummaryRow).Interior.ColorIndex = 4
+
+                    End If
+                    
+                'Put PercentChange in correct column, Make it appear as a Percent
+                ws.Range("K" & SummaryRow).Value = (PercentChange & "%")
+
+                'Add to placeholder value
+                SummaryRow = SummaryRow + 1
+
+                'Grab next StartValue
+                StartValue = ws.Cells(i + 1, 3).Value
+                
+                'Reset TotalVolume
+                TotalVolume = 0
+
+            End If
+
+        Next i
+
+    Next ws
+
+End Sub
